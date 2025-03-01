@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X } from 'lucide-react';
+import Image from 'next/image'; // Import Image from next/image
 
 export default function FlappyBird({ musicVolume, setMusicVolume }) {
   // Game settings
@@ -103,7 +104,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
     setBirdFlap(true);
     playJumpSound(); // Play jump sound when bird jumps
     setTimeout(() => setBirdFlap(false), 100);
-  }, [gameOver, birdVisible]);
+  }, [gameOver, birdVisible, jumpForce]);
 
   // Handle keyboard controls
   useEffect(() => {
@@ -318,9 +319,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
             animation: !gameStarted ? 'birdEntrance 0.5s ease-out' : 'none'
           }}
         >
-          <img
+          <Image
             src="bird.png" // Replace with the path to your image
             alt="Bird"
+            width={birdSize * 1.6}
+            height={birdSize * 1.6}
             style={{
               width: '160%',
               height: '160%',
@@ -374,7 +377,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
               <h2 className="text-center text-xl font-bold text-white mb-2">HOW TO PLAY</h2>
               <p className="text-center text-white text-sm">
                 Tap screen or press spacebar to fly.<br/>
-                Avoid pipes and don't hit the ground!
+                Avoid pipes and don&apos;t hit the ground!
               </p>
             </div>
 

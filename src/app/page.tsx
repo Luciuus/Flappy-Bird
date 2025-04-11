@@ -41,7 +41,7 @@ export default function Home() {
           }`}
         >
           <span className="text-white text-5xl font-bold animate-pulse">
-            Dazed Bird Made By R.A.D
+            Dazed Bird By kelompok 5
           </span>
         </div>
       )}

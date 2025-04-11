@@ -150,84 +150,92 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
   // Game loop
   useEffect(() => {
-    if (!gameStarted || gameOver || !gameHeight || isMenuOpen) return;
-
+    if (!gameStarted || gameOver || !gameHeight || !gameWidth || isMenuOpen) return;
+  
     let animationFrameId: number;
-
+  
     const gameLoop = () => {
-      // Update bird position
+      // Update bird
       setBirdY((prev) => {
-        const newPosition = prev + velocity;
-        // Stop the game if the bird hits the ground
-        if (newPosition >= gameHeight - birdSize - 80) { // -80 to account for ground height
+        const newY = prev + velocity;
+        if (newY >= gameHeight - birdSize - 80) {
           handleGameOver();
           return gameHeight - birdSize - 80;
         }
-        return newPosition;
+        return newY;
       });
-
       setVelocity((prev) => prev + gravity);
-
-      // Move pipes left
+  
+      // Move pipes
       setPipes((prevPipes) => {
-        const updatedPipes = prevPipes
-          .map((pipe) => ({
+        const newPipes = prevPipes
+          .map(pipe => ({
             ...pipe,
             x: pipe.x - pipeSpeed,
             passed: pipe.passed || (pipe.x + pipeWidth < birdX && !pipe.passed)
           }))
-          .filter((pipe) => pipe.x + pipeWidth > 0);
-
-        // Update score for newly passed pipes
-        const newlyPassedPipe = updatedPipes.find(pipe => pipe.passed && !prevPipes.find(p => p.id === pipe.id)?.passed);
-        if (newlyPassedPipe) {
-          console.log("Pipe passed:", newlyPassedPipe?.id); // 🔍 Debugging line
+          .filter(pipe => pipe.x + pipeWidth > 0);
+  
+        // Tambah skor jika pipe baru saja dilewati
+        const newScorePipe = newPipes.find(pipe => pipe.passed && !prevPipes.find(p => p.id === pipe.id)?.passed);
+        if (newScorePipe) {
           setScore(prev => prev + 1);
-          playScoreSound(); // Play score sound when points are earned
+          playScoreSound();
         }
-        
-        return updatedPipes;
-      });
-
-      // Spawn new pipes
-      if (pipes.length === 0 || pipes[pipes.length - 1].x < gameWidth - 300) {
-        const pipeHeight = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight) + minPipeHeight);
-        setPipes((prevPipes) => [
-          ...prevPipes,
-          {
+  
+        // Tambah pipe baru jika jarak sudah cukup
+        const lastPipeX = newPipes.length > 0 ? newPipes[newPipes.length - 1].x : null;
+        if (lastPipeX === null || gameWidth - lastPipeX >= 300) {
+          const pipeHeight = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight) + minPipeHeight);
+          newPipes.push({
             id: Date.now(),
             x: gameWidth,
             height: pipeHeight,
             passed: false
-          }
-        ]);
-      }
-
-      // Check collisions with pipes
-      pipes.forEach((pipe) => {
+          });
+        }
+  
+        return newPipes;
+      });
+  
+      // Cek tabrakan
+      pipes.forEach(pipe => {
         const birdRight = birdX + birdSize;
         const birdBottom = birdY + birdSize;
         const pipeLeft = pipe.x;
         const pipeRight = pipe.x + pipeWidth;
         const topPipeBottom = pipe.height;
         const bottomPipeTop = pipe.height + pipeGap;
-
+  
         if (
           birdRight > pipeLeft &&
           birdX < pipeRight &&
-          (birdY + 12 < topPipeBottom || birdBottom - 1 > bottomPipeTop) // Added offset
+          (birdY + 12 < topPipeBottom || birdBottom + 11 > bottomPipeTop)
         ) {
           handleGameOver();
         }
-        
       });
-
+  
       animationFrameId = requestAnimationFrame(gameLoop);
     };
-
+  
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
   }, [velocity, pipes, gameOver, gameStarted, gameHeight, gameWidth, birdX, birdY, isMenuOpen]);
+  
+  // Update ukuran layar secara berkala
+  useEffect(() => {
+    const updateDimensions = () => {
+      setGameHeight(window.innerHeight);
+      setGameWidth(window.innerWidth);
+    };
+  
+    updateDimensions();
+    const resizeInterval = setInterval(updateDimensions, 500);
+  
+    return () => clearInterval(resizeInterval);
+  }, []);
+  
 
   // Handle game over
   const handleGameOver = () => {

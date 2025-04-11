@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X } from 'lucide-react';
-import Image from 'next/image'; // Import Image from next/image
 
-export default function FlappyBird({ musicVolume, setMusicVolume }) {
+interface FlappyBirdProps {
+  musicVolume: number;
+  setMusicVolume: (volume: number) => void;
+}
+
+export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdProps) {
   // Game settings
   const gravity = 0.3;
   const jumpForce = -5;
@@ -17,7 +21,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
   // Game state
   const [birdY, setBirdY] = useState(0);
   const [velocity, setVelocity] = useState(0);
-  const [pipes, setPipes] = useState([]);
+  const [pipes, setPipes] = useState<{ id: number; x: number; height: number; passed: boolean }[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
@@ -30,8 +34,8 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State for menu visibility
 
   // Sound references
-  const jumpSoundRef = useRef(null);
-  const scoreSoundRef = useRef(null);
+  const jumpSoundRef = useRef<HTMLAudioElement | null>(null);
+  const scoreSoundRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize game dimensions and high score
   useEffect(() => {
@@ -104,17 +108,21 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
     setBirdFlap(true);
     playJumpSound(); // Play jump sound when bird jumps
     setTimeout(() => setBirdFlap(false), 100);
-  }, [gameOver, birdVisible, jumpForce]);
+  }, [gameOver, birdVisible]);
 
   // Handle keyboard controls
   useEffect(() => {
-    const handleKeyPress = (e) => {
+    interface KeyPressEvent extends KeyboardEvent {
+      code: string;
+    }
+
+    const handleKeyPress = (e: KeyPressEvent): void => {
       if (e.code === 'Space') {
-        if (!birdVisible && !gameStarted && !gameOver) {
-          startGame();
-        } else {
-          jump();
-        }
+      if (!birdVisible && !gameStarted && !gameOver) {
+        startGame();
+      } else {
+        jump();
+      }
       }
     };
 
@@ -123,13 +131,13 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
   }, [jump, gameStarted, gameOver, birdVisible]);
 
   // Debounce function
-  const debounce = (func, delay) => {
-    let debounceTimer;
-    return function(...args) {
+  const debounce = (func: (...args: any[]) => void, delay: number): (...args: any[]) => void => {
+    let debounceTimer: NodeJS.Timeout;
+    return function(this: unknown, ...args: any[]) {
       const context = this;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => func.apply(context, args), delay);
-    }
+    };
   };
 
   // Handle touch for jumping - this is the optimized touch function
@@ -144,7 +152,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
   useEffect(() => {
     if (!gameStarted || gameOver || !gameHeight || isMenuOpen) return;
 
-    let animationFrameId;
+    let animationFrameId: number;
 
     const gameLoop = () => {
       // Update bird position
@@ -171,12 +179,13 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
           .filter((pipe) => pipe.x + pipeWidth > 0);
 
         // Update score for newly passed pipes
-        const newlyPassedPipes = updatedPipes.filter(pipe => pipe.passed && !prevPipes.find(p => p.id === pipe.id)?.passed);
-        if (newlyPassedPipes.length > 0) {
-          setScore(prev => prev + newlyPassedPipes.length);
+        const newlyPassedPipe = updatedPipes.find(pipe => pipe.passed && !prevPipes.find(p => p.id === pipe.id)?.passed);
+        if (newlyPassedPipe) {
+          console.log("Pipe passed:", newlyPassedPipe?.id); // 🔍 Debugging line
+          setScore(prev => prev + 1);
           playScoreSound(); // Play score sound when points are earned
         }
-
+        
         return updatedPipes;
       });
 
@@ -206,10 +215,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
         if (
           birdRight > pipeLeft &&
           birdX < pipeRight &&
-          (birdY < topPipeBottom || birdBottom > bottomPipeTop)
+          (birdY + 12 < topPipeBottom || birdBottom - 1 > bottomPipeTop) // Added offset
         ) {
           handleGameOver();
         }
+        
       });
 
       animationFrameId = requestAnimationFrame(gameLoop);
@@ -265,7 +275,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
     <div
       className="relative w-full h-screen overflow-hidden select-none touch-none"
       onTouchStart={handleGameplayTouch}
-      onClick={(e) => {
+      onClick={() => {
         // Only handle gameplay clicks, not UI buttons
         if (birdVisible && gameStarted && !gameOver && !isMenuOpen) {
           jump();
@@ -319,11 +329,9 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
             animation: !gameStarted ? 'birdEntrance 0.5s ease-out' : 'none'
           }}
         >
-          <Image
+          <img
             src="bird.png" // Replace with the path to your image
             alt="Bird"
-            width={birdSize * 1.6}
-            height={birdSize * 1.6}
             style={{
               width: '160%',
               height: '160%',
@@ -377,7 +385,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }) {
               <h2 className="text-center text-xl font-bold text-white mb-2">HOW TO PLAY</h2>
               <p className="text-center text-white text-sm">
                 Tap screen or press spacebar to fly.<br/>
-                Avoid pipes and don&apos;t hit the ground!
+                Avoid pipes and don't hit the ground!
               </p>
             </div>
 

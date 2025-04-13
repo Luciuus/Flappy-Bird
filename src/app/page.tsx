@@ -59,7 +59,7 @@ export default function Home() {
             fadeOut ? "opacity-0" : "opacity-100"
           }`}
         >
-          <span className="text-white text-5xl font-bold animate-pulse">
+          <span className="text-white md:text-7xl text-4xl mx-6 text-center font-bold animate-pulse">
             Dazed Bird By kelompok 5
           </span>
         </div>

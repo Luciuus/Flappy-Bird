@@ -205,7 +205,7 @@ export default function FlappyBird({
           }))
           .filter((pipe) => pipe.x + pipeWidth > 0);
 
-        // Tambah skor jika pipe baru saja dilewati
+        // Increment score if a new pipe has just been passed
         const newScorePipe = newPipes.find(
           (pipe) =>
             pipe.passed && !prevPipes.find((p) => p.id === pipe.id)?.passed
@@ -215,7 +215,7 @@ export default function FlappyBird({
           playScoreSound();
         }
 
-        // Tambah pipe baru jika jarak sudah cukup
+        // Add a new pipe if the distance is sufficient
         const lastPipeX =
           newPipes.length > 0 ? newPipes[newPipes.length - 1].x : null;
         if (lastPipeX === null || gameWidth - lastPipeX >= 300) {
@@ -233,7 +233,7 @@ export default function FlappyBird({
         return newPipes;
       });
 
-      // Cek tabrakan
+      // Check for collisions
       pipes.forEach((pipe) => {
         const birdRight = birdX + birdSize;
         const birdBottom = birdY + birdSize;
@@ -268,7 +268,7 @@ export default function FlappyBird({
     isMenuOpen,
   ]);
 
-  // Update ukuran layar secara berkala
+  // Update screen dimensions periodically
   useEffect(() => {
     const updateDimensions = () => {
       setGameHeight(window.innerHeight);

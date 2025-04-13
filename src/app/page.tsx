@@ -1,34 +1,53 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import FlappyBird from "./Flappy";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.15); // Default music volume
+  const [musicVolume, setMusicVolume] = useState(0.15);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null); // holds the same audio object
 
   useEffect(() => {
-    const timer = setTimeout(() => setFadeOut(true), 1500); // Background starts fading out
+    const timer = setTimeout(() => setFadeOut(true), 1500);
     const hideTimer = setTimeout(() => {
       setLoading(false);
 
-      // Play music when the page fully fades in
-      const audio = new Audio("/music.mp3");
-      audio.loop = true;
-      audio.volume = musicVolume;
-      audio.play().catch(() => {
-        console.log("Autoplay blocked, waiting for interaction...");
-        document.addEventListener("click", () => {
-          audio.play();
-        }, { once: true }); // Plays only after the first click
-      });
-    }, 3300); // Fully disappears at 3.3s
+      // Create the audio only once
+      if (!audioRef.current) {
+        const audio = new Audio("/music.mp3");
+        audio.loop = true;
+        audio.volume = musicVolume;
+        audioRef.current = audio;
+
+        audio
+          .play()
+          .catch(() => {
+            console.log("Autoplay blocked, waiting for interaction...");
+            document.addEventListener(
+              "click",
+              () => {
+                audio.play();
+              },
+              { once: true }
+            );
+          });
+      }
+    }, 3300);
 
     return () => {
       clearTimeout(timer);
       clearTimeout(hideTimer);
     };
+  }, []);
+
+  // Update volume directly on the same audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = musicVolume;
+    }
   }, [musicVolume]);
 
   return (
@@ -46,13 +65,16 @@ export default function Home() {
         </div>
       )}
 
-      {/* Page fade-in effect */}
+      {/* Page fade-in */}
       <div
         className={`transition-opacity duration-[2000ms] ${
           loading ? "opacity-0" : "opacity-100"
         }`}
       >
-        <FlappyBird musicVolume={musicVolume} setMusicVolume={setMusicVolume} />
+        <FlappyBird
+          musicVolume={musicVolume}
+          setMusicVolume={setMusicVolume}
+        />
       </div>
     </div>
   );

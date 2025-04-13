@@ -11,8 +11,8 @@ export default function FlappyBird({
   setMusicVolume,
 }: FlappyBirdProps) {
   // Game settings
-  const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const gravity = isMobile ? 0.2 : 0.3;
+  const isMobile = typeof navigator !== 'undefined' && /iPhone|Android/i.test(navigator.userAgent);
+  const gravity = isMobile ? 0.1 : 0.3;
   const pipeSpeed = isMobile ? 1 : 2;
   const jumpForce = isMobile ? -3 : -5;
   const pipeWidth = 80;

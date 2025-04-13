@@ -11,11 +11,12 @@ export default function FlappyBird({
   setMusicVolume,
 }: FlappyBirdProps) {
   // Game settings
-  const gravity = 0.3;
+  const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const gravity = isMobile ? 0.2 : 0.3;
+  const pipeSpeed = isMobile ? 1.5 : 2;
   const jumpForce = -5;
   const pipeWidth = 80;
   const pipeGap = 150;
-  const pipeSpeed = 2;
   const birdSize = 40;
   const birdX = 100;
   const minPipeHeight = 50;

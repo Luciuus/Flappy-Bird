@@ -455,7 +455,7 @@ export default function FlappyBird({
           <div className="bg-blue-500 p-8 rounded-xl border-4 border-blue-700 shadow-2xl w-4/5 max-w-lg relative z-10">
             {/* Game title with fancy effect */}
             <div className="relative">
-              <h1 className="text-center text-6xl font-black text-yellow-300 mb-2 tracking-wider drop-shadow-lg">
+              <h1 className="text-center text-3xl md:text-6xl font-black text-yellow-300 md:mb-2 tracking-wider drop-shadow-lg">
                 DAZED BIRD
               </h1>
             </div>
@@ -474,7 +474,7 @@ export default function FlappyBird({
 
             {/* High score */}
             <div className="bg-blue-600 p-2 rounded-lg mb-6 border-2 border-blue-700">
-              <p className="text-center text-white text-3xl">
+              <p className="text-center text-white text-2xl md:text-3xl">
                 High Score:{" "}
                 <span className="font-bold text-yellow-300">{highScore}</span>
               </p>
@@ -488,7 +488,7 @@ export default function FlappyBird({
                 setShowControls(!showControls);
               }}
             >
-              <h2 className="text-center text-3xl font-bold text-white mb-2 flex items-center justify-center">
+              <h2 className="text-center text-xl md:text-3xl font-bold text-white mb-2 flex items-center justify-center">
                 HOW TO PLAY
               </h2>
 
@@ -509,7 +509,7 @@ export default function FlappyBird({
                       </svg>
                     </div>
                   </div>
-                  <p className="text-center text-sm">
+                  <p className="text-center text-[12px] md:text-sm">
                     Tap screen or press spacebar to fly.
                     <br />
                     Avoid pipes and don't hit the ground!

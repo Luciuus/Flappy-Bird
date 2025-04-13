@@ -131,14 +131,15 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
   }, [jump, gameStarted, gameOver, birdVisible]);
 
   // Debounce function
-  const debounce = (func: (...args: any[]) => void, delay: number): (...args: any[]) => void => {
+  const debounce = <T extends (...args: any[]) => void>(func: T, delay: number): T => {
     let debounceTimer: NodeJS.Timeout;
-    return function(this: unknown, ...args: any[]) {
+    return function (this: unknown, ...args: Parameters<T>) {
       const context = this;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => func.apply(context, args), delay);
-    };
+    } as T;
   };
+  
 
   // Handle touch for jumping - this is the optimized touch function
   const handleGameplayTouch = debounce((e) => {

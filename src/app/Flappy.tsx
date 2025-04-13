@@ -13,7 +13,7 @@ export default function FlappyBird({
   // Game settings
   const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const gravity = isMobile ? 0.2 : 0.3;
-  const pipeSpeed = isMobile ? 0.5 : 2;
+  const pipeSpeed = isMobile ? 1 : 2;
   const jumpForce = isMobile ? -3 : -5;
   const pipeWidth = 80;
   const pipeGap = 150;

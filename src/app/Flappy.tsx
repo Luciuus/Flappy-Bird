@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 
 interface FlappyBirdProps {
   musicVolume: number;
   setMusicVolume: (volume: number) => void;
 }
 
-export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdProps) {
+export default function FlappyBird({
+  musicVolume,
+  setMusicVolume,
+}: FlappyBirdProps) {
   // Game settings
   const gravity = 0.3;
   const jumpForce = -5;
@@ -21,7 +24,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
   // Game state
   const [birdY, setBirdY] = useState(0);
   const [velocity, setVelocity] = useState(0);
-  const [pipes, setPipes] = useState<{ id: number; x: number; height: number; passed: boolean }[]>([]);
+  const [pipes, setPipes] = useState<
+    { id: number; x: number; height: number; passed: boolean }[]
+  >([]);
+  const [birdPosition, setBirdPosition] = useState(0);
+  const [showControls, setShowControls] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
@@ -37,6 +44,13 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
   const jumpSoundRef = useRef<HTMLAudioElement | null>(null);
   const scoreSoundRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBirdPosition((prev) => (prev === 0 ? -10 : 0));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
   // Initialize game dimensions and high score
   useEffect(() => {
     const updateDimensions = () => {
@@ -45,18 +59,20 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
     };
 
     // Load high score from localStorage if available
-    const savedHighScore = localStorage.getItem('flappyBirdHighScore');
+    const savedHighScore = localStorage.getItem("flappyBirdHighScore");
     if (savedHighScore) {
       setHighScore(parseInt(savedHighScore));
     }
 
     // Create audio elements for sounds
     jumpSoundRef.current = new Audio();
-    jumpSoundRef.current.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAB4eHh4eHh4eHh4";
+    jumpSoundRef.current.src =
+      "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAB4eHh4eHh4eHh4";
     jumpSoundRef.current.volume = soundVolume;
 
     scoreSoundRef.current = new Audio();
-    scoreSoundRef.current.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAB8fHx8fHx8fHx8";
+    scoreSoundRef.current.src =
+      "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAB8fHx8fHx8fHx8";
     scoreSoundRef.current.volume = soundVolume;
 
     // Load sound effects (using actual sound effects)
@@ -68,16 +84,18 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
     scoreSoundRef.current.load();
 
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
 
-    return () => window.removeEventListener('resize', updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, [soundVolume]);
 
   // Play jump sound
   const playJumpSound = () => {
     if (jumpSoundRef.current) {
       jumpSoundRef.current.currentTime = 0;
-      jumpSoundRef.current.play().catch(e => console.log("Audio play failed:", e));
+      jumpSoundRef.current
+        .play()
+        .catch((e) => console.log("Audio play failed:", e));
     }
   };
 
@@ -85,7 +103,9 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
   const playScoreSound = () => {
     if (scoreSoundRef.current) {
       scoreSoundRef.current.currentTime = 0;
-      scoreSoundRef.current.play().catch(e => console.log("Audio play failed:", e));
+      scoreSoundRef.current
+        .play()
+        .catch((e) => console.log("Audio play failed:", e));
     }
   };
 
@@ -93,6 +113,10 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
   const startGame = () => {
     setBirdVisible(true);
     setBirdY(gameHeight / 3);
+    setVelocity(0); // Reset velocity to 0
+    setPipes([]); // Clear pipes
+    setGameOver(false); // Reset gameOver state
+    setScore(0); // Reset score
 
     // Short delay before starting gameplay to let player see the bird appear
     setTimeout(() => {
@@ -117,21 +141,24 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
     }
 
     const handleKeyPress = (e: KeyPressEvent): void => {
-      if (e.code === 'Space') {
-      if (!birdVisible && !gameStarted && !gameOver) {
-        startGame();
-      } else {
-        jump();
-      }
+      if (e.code === "Space") {
+        if (!birdVisible && !gameStarted && !gameOver) {
+          startGame();
+        } else {
+          jump();
+        }
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [jump, gameStarted, gameOver, birdVisible]);
 
   // Debounce function
-  const debounce = <T extends (...args: any[]) => void>(func: T, delay: number): T => {
+  const debounce = <T extends (...args: any[]) => void>(
+    func: T,
+    delay: number
+  ): T => {
     let debounceTimer: NodeJS.Timeout;
     return function (this: unknown, ...args: Parameters<T>) {
       const context = this;
@@ -139,7 +166,6 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
       debounceTimer = setTimeout(() => func.apply(context, args), delay);
     } as T;
   };
-  
 
   // Handle touch for jumping - this is the optimized touch function
   const handleGameplayTouch = debounce((e) => {
@@ -151,10 +177,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
   // Game loop
   useEffect(() => {
-    if (!gameStarted || gameOver || !gameHeight || !gameWidth || isMenuOpen) return;
-  
+    if (!gameStarted || gameOver || !gameHeight || !gameWidth || isMenuOpen)
+      return;
+
     let animationFrameId: number;
-  
+
     const gameLoop = () => {
       // Update bird
       setBirdY((prev) => {
@@ -166,48 +193,54 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
         return newY;
       });
       setVelocity((prev) => prev + gravity);
-  
+
       // Move pipes
       setPipes((prevPipes) => {
         const newPipes = prevPipes
-          .map(pipe => ({
+          .map((pipe) => ({
             ...pipe,
             x: pipe.x - pipeSpeed,
-            passed: pipe.passed || (pipe.x + pipeWidth < birdX && !pipe.passed)
+            passed: pipe.passed || (pipe.x + pipeWidth < birdX && !pipe.passed),
           }))
-          .filter(pipe => pipe.x + pipeWidth > 0);
-  
+          .filter((pipe) => pipe.x + pipeWidth > 0);
+
         // Tambah skor jika pipe baru saja dilewati
-        const newScorePipe = newPipes.find(pipe => pipe.passed && !prevPipes.find(p => p.id === pipe.id)?.passed);
+        const newScorePipe = newPipes.find(
+          (pipe) =>
+            pipe.passed && !prevPipes.find((p) => p.id === pipe.id)?.passed
+        );
         if (newScorePipe) {
-          setScore(prev => prev + 1);
+          setScore((prev) => prev + 1);
           playScoreSound();
         }
-  
+
         // Tambah pipe baru jika jarak sudah cukup
-        const lastPipeX = newPipes.length > 0 ? newPipes[newPipes.length - 1].x : null;
+        const lastPipeX =
+          newPipes.length > 0 ? newPipes[newPipes.length - 1].x : null;
         if (lastPipeX === null || gameWidth - lastPipeX >= 300) {
-          const pipeHeight = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight) + minPipeHeight);
+          const pipeHeight = Math.floor(
+            Math.random() * (maxPipeHeight - minPipeHeight) + minPipeHeight
+          );
           newPipes.push({
             id: Date.now(),
             x: gameWidth,
             height: pipeHeight,
-            passed: false
+            passed: false,
           });
         }
-  
+
         return newPipes;
       });
-  
+
       // Cek tabrakan
-      pipes.forEach(pipe => {
+      pipes.forEach((pipe) => {
         const birdRight = birdX + birdSize;
         const birdBottom = birdY + birdSize;
         const pipeLeft = pipe.x;
         const pipeRight = pipe.x + pipeWidth;
         const topPipeBottom = pipe.height;
         const bottomPipeTop = pipe.height + pipeGap;
-  
+
         if (
           birdRight > pipeLeft &&
           birdX < pipeRight &&
@@ -216,27 +249,36 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
           handleGameOver();
         }
       });
-  
+
       animationFrameId = requestAnimationFrame(gameLoop);
     };
-  
+
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [velocity, pipes, gameOver, gameStarted, gameHeight, gameWidth, birdX, birdY, isMenuOpen]);
-  
+  }, [
+    velocity,
+    pipes,
+    gameOver,
+    gameStarted,
+    gameHeight,
+    gameWidth,
+    birdX,
+    birdY,
+    isMenuOpen,
+  ]);
+
   // Update ukuran layar secara berkala
   useEffect(() => {
     const updateDimensions = () => {
       setGameHeight(window.innerHeight);
       setGameWidth(window.innerWidth);
     };
-  
+
     updateDimensions();
     const resizeInterval = setInterval(updateDimensions, 500);
-  
+
     return () => clearInterval(resizeInterval);
   }, []);
-  
 
   // Handle game over
   const handleGameOver = () => {
@@ -244,7 +286,7 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
     // Update high score if needed
     if (score > highScore) {
       setHighScore(score);
-      localStorage.setItem('flappyBirdHighScore', score.toString());
+      localStorage.setItem("flappyBirdHighScore", score.toString());
     }
   };
 
@@ -274,10 +316,10 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
   // Create animated clouds
   const clouds = [
-    { id: 1, x: '10%', y: '15%', size: 80, speed: 0.5 },
-    { id: 2, x: '30%', y: '10%', size: 60, speed: 0.3 },
-    { id: 3, x: '60%', y: '20%', size: 100, speed: 0.4 },
-    { id: 4, x: '80%', y: '15%', size: 70, speed: 0.6 }
+    { id: 1, x: "10%", y: "15%", size: 80, speed: 0.5 },
+    { id: 2, x: "30%", y: "10%", size: 60, speed: 0.3 },
+    { id: 3, x: "60%", y: "20%", size: 100, speed: 0.4 },
+    { id: 4, x: "80%", y: "15%", size: 70, speed: 0.6 },
   ];
 
   return (
@@ -292,13 +334,13 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
           startGame();
         }
       }}
-      style={{ height: '100vh', width: '100vw' }}
+      style={{ height: "100vh", width: "100vw" }}
     >
       {/* Sky background */}
       <div className="absolute inset-0 bg-gradient-to-b from-sky-300 to-sky-500 w-full h-full" />
 
       {/* Animated clouds */}
-      {clouds.map(cloud => (
+      {clouds.map((cloud) => (
         <div
           key={cloud.id}
           className="absolute rounded-full bg-white opacity-80"
@@ -308,8 +350,8 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
             width: cloud.size,
             height: cloud.size / 2,
             animation: `moveCloud ${30 / cloud.speed}s linear infinite`,
-            boxShadow: '0 0 20px 8px white',
-            zIndex: 1
+            boxShadow: "0 0 20px 8px white",
+            zIndex: 1,
           }}
         />
       ))}
@@ -331,20 +373,24 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
             left: birdX,
             width: birdSize,
             height: birdSize,
-            transform: `rotate(${velocity > 0 ? Math.min(velocity * 2, 40) : Math.max(velocity * 6, -40)}deg) scale(${birdFlap ? 0.95 : 1})`,
+            transform: `rotate(${
+              velocity > 0
+                ? Math.min(velocity * 2, 40)
+                : Math.max(velocity * 6, -40)
+            }deg) scale(${birdFlap ? 0.95 : 1})`,
             zIndex: 10,
-            transition: 'transform 0.1s ease-in-out, opacity 0.5s ease-in-out',
+            transition: "transform 0.1s ease-in-out, opacity 0.5s ease-in-out",
             opacity: 1,
-            animation: !gameStarted ? 'birdEntrance 0.5s ease-out' : 'none'
+            animation: !gameStarted ? "birdEntrance 0.5s ease-out" : "none",
           }}
         >
           <img
             src="bird.png" // Replace with the path to your image
             alt="Bird"
             style={{
-              width: '160%',
-              height: '160%',
-              objectFit: 'cover',
+              width: "160%",
+              height: "160%",
+              objectFit: "cover",
             }}
           />
         </div>
@@ -352,10 +398,25 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
       {/* Pipes */}
       {pipes.map((pipe) => (
-        <div key={pipe.id} style={{ position: 'absolute', left: pipe.x, width: pipeWidth, height: '100%', zIndex: 5 }}>
+        <div
+          key={pipe.id}
+          style={{
+            position: "absolute",
+            left: pipe.x,
+            width: pipeWidth,
+            height: "100%",
+            zIndex: 5,
+          }}
+        >
           {/* Top Pipe */}
-          <div className="absolute top-0 w-full bg-green-600 border-r-4 border-l-4 border-green-700" style={{ height: pipe.height }}>
-            <div className="absolute bottom-0 w-full h-8 bg-green-500 border-t-4 border-b-4 border-r-4 border-l-4 border-green-700" style={{ left: -8, width: pipeWidth + 8 }}></div>
+          <div
+            className="absolute top-0 w-full bg-green-600 border-r-4 border-l-4 border-green-700"
+            style={{ height: pipe.height }}
+          >
+            <div
+              className="absolute bottom-0 w-full h-8 bg-green-500 border-t-4 border-b-4 border-r-4 border-l-4 border-green-700"
+              style={{ left: -8, width: pipeWidth + 8 }}
+            ></div>
           </div>
 
           {/* Bottom Pipe */}
@@ -363,45 +424,105 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
             className="absolute w-full bg-green-600 border-r-4 border-l-4 border-green-700"
             style={{
               top: pipe.height + pipeGap,
-              height: gameHeight - pipe.height - pipeGap
+              height: gameHeight - pipe.height - pipeGap,
             }}
           >
-            <div className="absolute top-0 w-full h-8 bg-green-500 border-b-4 border-t-4 border-r-4 border-l-4 border-green-700" style={{ left: -8, width: pipeWidth + 8 }}></div>
+            <div
+              className="absolute top-0 w-full h-8 bg-green-500 border-b-4 border-t-4 border-r-4 border-l-4 border-green-700"
+              style={{ left: -8, width: pipeWidth + 8 }}
+            ></div>
           </div>
         </div>
       ))}
 
       {/* Score */}
       {gameStarted && (
-        <div className="absolute top-8 left-0 right-0 text-center text-white text-6xl font-bold z-30" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+        <div
+          className="absolute top-8 left-0 right-0 text-center text-white text-6xl font-bold z-30"
+          style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}
+        >
           {score}
         </div>
       )}
 
-      {/* Start Screen */}
       {!gameStarted && !gameOver && (
-        <div className="absolute inset-0 flex items-center justify-center z-50">
-          <div className="bg-blue-600 p-8 rounded-xl border-4 shadow-2xl w-4/5 max-w-md">
-            <h1 className="text-center text-5xl font-extrabold text-yellow-300 mb-2 tracking-wider">
-              DAZED BIRD
-            </h1>
+        <div
+          className="bg-gradient-to-b from-blue-400 to-blue-600 min-h-screen flex items-center justify-center p-4"
+          onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+          onKeyDown={(e) => e.stopPropagation()} // Prevent key events from bubbling up
+        >
+          {/* Main container */}
+          <div className="bg-blue-500 p-8 rounded-xl border-4 border-blue-700 shadow-2xl w-4/5 max-w-lg relative z-10">
+            {/* Game title with fancy effect */}
+            <div className="relative">
+              <h1 className="text-center text-6xl font-black text-yellow-300 mb-2 tracking-wider drop-shadow-lg">
+                DAZED BIRD
+              </h1>
+            </div>
 
-            <p className="text-center text-white text-xl mb-8">
-              High Score: <span className="font-bold text-yellow-300">{highScore}</span>
-            </p>
+            {/* Bird character */}
+            <div
+              className="flex justify-center"
+              style={{ transform: `translateY(${birdPosition}px)` }}
+            >
+              <img
+                src="bird.png" // Replace with the path to your bird image
+                alt="Bird"
+                className="w-42 h-42"
+              />
+            </div>
 
-            <div className="bg-blue-900 p-4 rounded-lg mb-6">
-              <h2 className="text-center text-xl font-bold text-white mb-2">HOW TO PLAY</h2>
-              <p className="text-center text-white text-sm">
-                Tap screen or press spacebar to fly.<br/>
-                Avoid pipes and don't hit the ground!
+            {/* High score */}
+            <div className="bg-blue-600 p-2 rounded-lg mb-6 border-2 border-blue-700">
+              <p className="text-center text-white text-3xl">
+                High Score:{" "}
+                <span className="font-bold text-yellow-300">{highScore}</span>
               </p>
             </div>
 
-            <button
-              className="w-full py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-full transition-all hover:scale-105 active:scale-95"
+            {/* How to play section */}
+            <div
+              className="bg-blue-700 p-4 rounded-lg mb-6 border-2 border-blue-800 cursor-pointer"
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent clicks from bubbling up
+                setShowControls(!showControls);
+              }}
+            >
+              <h2 className="text-center text-3xl font-bold text-white mb-2 flex items-center justify-center">
+                HOW TO PLAY
+              </h2>
+
+              {showControls && (
+                <div className="text-white space-y-2">
+                  <div className="flex items-center justify-center space-x-4 mb-2">
+                    <div className="bg-gray-200 rounded px-3 py-1 text-blue-800">
+                      SPACE
+                    </div>
+                    <span>or</span>
+                    <div className="bg-gray-200 rounded px-2 py-2">
+                      <svg
+                        className="w-6 h-6 text-blue-800"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M8 4a2 2 0 00-2 2v4a2 2 0 002 2h4a2 2 0 002-2V6a2 2 0 00-2-2H8z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-center text-sm">
+                    Tap screen or press spacebar to fly.
+                    <br />
+                    Avoid pipes and don't hit the ground!
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Start button with pulse effect - Only this should start the game */}
+            <button
+              className="w-full py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-full transition-all hover:scale-105 active:scale-95 border-b-4 border-green-800 shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent clicks from bubbling up
                 startGame();
               }}
             >
@@ -414,8 +535,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
       {/* Game Over Screen */}
       {gameOver && (
         <div className="absolute inset-0 flex items-center justify-center z-50">
-          <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-8 rounded-xl border-4 shadow-2xl w-4/5 max-w-md">
-            <h1 className="text-center text-4xl font-extrabold text-red-500 mb-2" style={{ textShadow: '0 0 10px rgba(255,0,0,0.3)' }}>
+          <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-8 rounded-xl border-4 shadow-2xl w-4/5 md:h-[400px] max-w-md">
+            <h1
+              className="text-center text-4xl font-extrabold text-red-500 mb-2"
+              style={{ textShadow: "0 0 10px rgba(255,0,0,0.3)" }}
+            >
               GAME OVER
             </h1>
 
@@ -426,9 +550,12 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
                 </div>
               ) : (
                 <div className="w-16 h-16 relative">
-                  <div className="absolute inset-0 bg-red-500 rounded-full opacity-100" style={{ transform: 'rotate(45deg)' }}></div>
+                  <div
+                    className="absolute inset-0 bg-red-500 rounded-full opacity-100"
+                    style={{ transform: "rotate(45deg)" }}
+                  ></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                  <X size={50}/>
+                    <X size={50} />
                   </div>
                 </div>
               )}
@@ -441,7 +568,9 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
               </div>
               <div className="text-center">
                 <p className="text-gray-400 text-sm">BEST</p>
-                <p className="text-white text-3xl font-bold">{Math.max(score, highScore)}</p>
+                <p className="text-white text-3xl font-bold">
+                  {Math.max(score, highScore)}
+                </p>
               </div>
             </div>
 
@@ -475,9 +604,11 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
       {/* Menu */}
       {isMenuOpen && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
-          <div className="bg-white p-8 rounded-xl border-4 shadow-2xl w-4/5 max-w-md">
-            <h2 className="text-center text-2xl font-bold mb-4">Game Menu</h2>
+        <div className="absolute inset-0 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-xl border-4 shadow-2xl w-4/5 md:h-[400px] flex flex-col justify-center max-w-md">
+            <h2 className="text-center text-4xl font-bold mb-4 text-black">
+              Game Menu
+            </h2>
             <div className="mb-4">
               <label className="block text-gray-700">Sound Volume</label>
               <input
@@ -522,17 +653,26 @@ export default function FlappyBird({ musicVolume, setMusicVolume }: FlappyBirdPr
 
       {/* Menu Button */}
       <button
-        className="absolute top-4 right-4 bg-gray-800 text-white p-2 rounded-full z-50"
-        onClick={handleMenuToggle}
+        className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md text-white rounded-lg shadow-lg flex items-center justify-center z-50"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents jump trigger
+          handleMenuToggle();
+        }}
+        aria-label="Pause Game"
       >
-        Menu
+        <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
+        <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
       </button>
 
       {/* Add CSS animations */}
       <style jsx>{`
         @keyframes moveCloud {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(${gameWidth}px); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(${gameWidth}px);
+          }
         }
 
         @keyframes birdEntrance {

@@ -45,6 +45,9 @@ export default function FlappyBird({
   const jumpSoundRef = useRef<HTMLAudioElement | null>(null);
   const scoreSoundRef = useRef<HTMLAudioElement | null>(null);
 
+  // To Single Point Thingy
+  var alreadyPoint = false;
+
   useEffect(() => {
     const interval = setInterval(() => {
       setBirdPosition((prev) => (prev === 0 ? -10 : 0));
@@ -211,8 +214,11 @@ export default function FlappyBird({
             pipe.passed && !prevPipes.find((p) => p.id === pipe.id)?.passed
         );
         if (newScorePipe) {
-          setScore((prev) => prev + 1);
-          playScoreSound();
+          if (!alreadyPoint) {
+            setScore((prev) => prev + 1);
+            playScoreSound();
+          }
+          alreadyPoint = !alreadyPoint;
         }
 
         // Add a new pipe if the distance is sufficient

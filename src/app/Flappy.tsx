@@ -12,7 +12,7 @@ export default function FlappyBird({
 }: FlappyBirdProps) {
   // Game settings
   const isMobile = typeof navigator !== 'undefined' && /iPhone|Android/i.test(navigator.userAgent);
-  const gravity = isMobile ? 0.1 : 0.3;
+  const gravity = isMobile ? 0.12 : 0.3;
   const pipeSpeed = isMobile ? 1 : 2;
   const jumpForce = isMobile ? -3 : -5;
   const pipeWidth = 80;
@@ -245,7 +245,7 @@ export default function FlappyBird({
         if (
           birdRight > pipeLeft &&
           birdX < pipeRight &&
-          (birdY + 12 < topPipeBottom || birdBottom + 11 > bottomPipeTop)
+          (birdY + 12 < topPipeBottom || birdBottom +25 > bottomPipeTop)
         ) {
           handleGameOver();
         }
@@ -386,7 +386,7 @@ export default function FlappyBird({
           }}
         >
           <img
-            src="bird.png" // Replace with the path to your image
+            src="player.png" // Replace with the path to your image
             alt="Bird"
             style={{
               width: "160%",
@@ -467,7 +467,7 @@ export default function FlappyBird({
               style={{ transform: `translateY(${birdPosition}px)` }}
             >
               <img
-                src="bird.png" // Replace with the path to your bird image
+                src="player.png" // Replace with the path to your bird image
                 alt="Bird"
                 className="w-42 h-42"
               />
@@ -653,17 +653,19 @@ export default function FlappyBird({
       )}
 
       {/* Menu Button */}
-      <button
-        className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md text-white rounded-lg shadow-lg flex items-center justify-center z-50"
-        onClick={(e) => {
-          e.stopPropagation(); // Prevents jump trigger
-          handleMenuToggle();
-        }}
-        aria-label="Pause Game"
-      >
-        <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
-        <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
-      </button>
+      {gameStarted && (
+        <button
+          className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md text-white rounded-lg shadow-lg flex items-center justify-center z-50"
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents jump trigger
+            handleMenuToggle();
+          }}
+          aria-label="Pause Game"
+        >
+          <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
+          <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
+        </button>
+      )}
 
       {/* Add CSS animations */}
       <style jsx>{`

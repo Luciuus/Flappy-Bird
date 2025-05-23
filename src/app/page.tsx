@@ -9,8 +9,6 @@ export default function Home() {
   const [musicVolume, setMusicVolume] = useState(0.15);
 
   const audioRef = useRef<HTMLAudioElement | null>(null); // holds the same audio object
-  
-
   useEffect(() => {
     const timer = setTimeout(() => setFadeOut(true), 1500);
     const hideTimer = setTimeout(() => {

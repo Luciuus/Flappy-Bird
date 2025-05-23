@@ -11,7 +11,9 @@ export default function FlappyBird({
   setMusicVolume,
 }: FlappyBirdProps) {
   // Game settings
-  const isMobile = typeof navigator !== 'undefined' && /iPhone|Android/i.test(navigator.userAgent);
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|Android/i.test(navigator.userAgent);
   const gravity = isMobile ? 0.12 : 0.3;
   const pipeSpeed = isMobile ? 1 : 2;
   const jumpForce = isMobile ? -3 : -5;
@@ -251,7 +253,7 @@ export default function FlappyBird({
         if (
           birdRight > pipeLeft &&
           birdX < pipeRight &&
-          (birdY + 12 < topPipeBottom || birdBottom +25 > bottomPipeTop)
+          (birdY + 12 < topPipeBottom || birdBottom + 25 > bottomPipeTop)
         ) {
           handleGameOver();
         }
@@ -403,7 +405,6 @@ export default function FlappyBird({
         </div>
       )}
 
-      {/* Pipes */}
       {pipes.map((pipe) => (
         <div
           key={pipe.id}
@@ -417,27 +418,65 @@ export default function FlappyBird({
         >
           {/* Top Pipe */}
           <div
-            className="absolute top-0 w-full bg-green-600 border-r-4 border-l-4 border-green-700"
+            className="absolute top-0 w-full bg-gradient-to-r from-gray-600 to-gray-700 border-r-4 border-l-4 border-gray-800"
             style={{ height: pipe.height }}
           >
+            {/* Pipe Cap */}
             <div
-              className="absolute bottom-0 w-full h-8 bg-green-500 border-t-4 border-b-4 border-r-4 border-l-4 border-green-700"
-              style={{ left: -8, width: pipeWidth + 8 }}
-            ></div>
+              className="absolute bottom-0 bg-gradient-to-r from-gray-500 to-gray-600 border-4 border-gray-800"
+              style={{
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: pipeWidth + 16,
+                height: 24,
+                borderRadius: "8px",
+              }}
+            >
+              {/* Bolts on cap */}
+              <div className="absolute top-1 left-2 w-2 h-2 bg-gray-900 rounded-full"></div>
+              <div className="absolute top-1 right-2 w-2 h-2 bg-gray-900 rounded-full"></div>
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rounded-full"></div>
+            </div>
+            {/* Rust spots */}
+            <div className="absolute top-4 left-2 w-3 h-2 bg-orange-600 rounded-full opacity-70"></div>
+            <div className="absolute top-12 right-1 w-2 h-3 bg-orange-700 rounded-full opacity-60"></div>
+            {/* Pipe segments */}
+            <div className="absolute top-1/4 left-0 w-full h-1 bg-gray-800"></div>
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-800"></div>
+            <div className="absolute top-3/4 left-0 w-full h-1 bg-gray-800"></div>
           </div>
 
           {/* Bottom Pipe */}
           <div
-            className="absolute w-full bg-green-600 border-r-4 border-l-4 border-green-700"
+            className="absolute w-full bg-gradient-to-r from-gray-600 to-gray-700 border-r-4 border-l-4 border-gray-800"
             style={{
               top: pipe.height + pipeGap,
               height: gameHeight - pipe.height - pipeGap,
             }}
           >
+            {/* Pipe Cap */}
             <div
-              className="absolute top-0 w-full h-8 bg-green-500 border-b-4 border-t-4 border-r-4 border-l-4 border-green-700"
-              style={{ left: -8, width: pipeWidth + 8 }}
-            ></div>
+              className="absolute top-0 bg-gradient-to-r from-gray-500 to-gray-600 border-4 border-gray-800"
+              style={{
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: pipeWidth + 16,
+                height: 24,
+                borderRadius: "8px",
+              }}
+            >
+              {/* Bolts on cap */}
+              <div className="absolute top-1 left-2 w-2 h-2 bg-gray-900 rounded-full"></div>
+              <div className="absolute top-1 right-2 w-2 h-2 bg-gray-900 rounded-full"></div>
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rounded-full"></div>
+            </div>
+            {/* Rust spots */}
+            <div className="absolute top-8 left-1 w-2 h-3 bg-orange-600 rounded-full opacity-70"></div>
+            <div className="absolute top-16 right-2 w-3 h-2 bg-orange-700 rounded-full opacity-60"></div>
+            {/* Pipe segments */}
+            <div className="absolute top-1/4 left-0 w-full h-1 bg-gray-800"></div>
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-800"></div>
+            <div className="absolute top-3/4 left-0 w-full h-1 bg-gray-800"></div>
           </div>
         </div>
       ))}
@@ -460,9 +499,8 @@ export default function FlappyBird({
         >
           {/* Main container */}
           <div className="bg-blue-500 p-8 rounded-xl border-4 border-blue-700 shadow-2xl w-4/5 max-w-lg relative z-10">
-            {/* Game title with fancy effect */}
             <div className="relative">
-              <h1 className="text-center text-3xl md:text-6xl font-black text-yellow-300 md:mb-2 tracking-wider drop-shadow-lg">
+              <h1 className="text-center text-3xl md:text-6xl font-black text-yellow-300 tracking-wider drop-shadow-lg">
                 DAZED BIRD
               </h1>
             </div>
@@ -475,7 +513,7 @@ export default function FlappyBird({
               <img
                 src="player.png" // Replace with the path to your bird image
                 alt="Bird"
-                className="w-42 h-42"
+                className="w-32 h-48 mb-2 md:mb-0"
               />
             </div>
 

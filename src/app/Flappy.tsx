@@ -501,7 +501,7 @@ export default function FlappyBird({
           <div className="bg-blue-500 p-8 rounded-xl border-4 border-blue-700 shadow-2xl w-4/5 max-w-lg relative z-10">
             <div className="relative">
               <h1 className="text-center text-3xl md:text-6xl font-black text-yellow-300 tracking-wider drop-shadow-lg">
-                DAZED BIRD
+                Egg Hop
               </h1>
             </div>
 

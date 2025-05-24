@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X } from "lucide-react";
+import { X, Settings } from "lucide-react";
 
 interface FlappyBirdProps {
   musicVolume: number;
@@ -697,19 +697,23 @@ export default function FlappyBird({
       )}
 
       {/* Menu Button */}
-      {gameStarted && (
-        <button
-          className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md text-white rounded-lg shadow-lg flex items-center justify-center z-50"
-          onClick={(e) => {
-            e.stopPropagation(); // Prevents jump trigger
-            handleMenuToggle();
-          }}
-          aria-label="Pause Game"
-        >
-          <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
-          <span className="block w-2 h-8 bg-white mx-1 rounded-sm"></span>
-        </button>
-      )}
+{gameStarted && (
+  <button
+    className={`absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md text-white rounded-lg shadow-lg flex items-center justify-center z-50 transition ease-in-out ${
+      gameOver || isMenuOpen ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:scale-110'
+    }`}
+    onClick={(e) => {
+      e.stopPropagation(); // Prevents jump trigger
+      if (gameOver || isMenuOpen) return; // Don't trigger menu if blocked
+      handleMenuToggle();
+    }}
+    aria-label="Pause Game"
+    disabled={gameOver || isMenuOpen}
+  >
+    <Settings className="w-8 h-8" />
+  </button>
+)}
+
 
       {/* Add CSS animations */}
       <style jsx>{`

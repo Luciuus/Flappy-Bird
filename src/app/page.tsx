@@ -59,7 +59,7 @@ export default function Home() {
           }`}
         >
           <span className="text-white md:text-7xl text-4xl mx-6 text-center font-bold animate-pulse">
-            Dazed Bird By kelompok 5
+            Dazed Bird By kelompok 4
           </span>
         </div>
       )}
